@@ -44,7 +44,7 @@ function moduleDecoratorFactory(moduleOptions: ModuleOptions) {
 
     const accessor: any = function() {
       return buildAccessor(moduleDefinition, moduleOptions);
-    }
+    };
     accessor.prototype = classModule.prototype;
     return accessor;
   };
@@ -236,7 +236,5 @@ function addHelperFunctions(obj: any, moduleDefinition: ModuleDefinition) {
 }
 
 function warn(text: string) {
-  if (process.env.NODE_ENV !== "production") {
-    console.warn("[vuex-class-module]: " + text);
-  }
+  console.warn("[vuex-class-module]: " + text);
 }

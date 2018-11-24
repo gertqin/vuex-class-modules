@@ -1,0 +1,14 @@
+{
+  "preset": "ts-jest",
+  "rootDir": "./test",
+  "testMatch": ["<rootDir>/**/*.ts"],
+  "moduleFileExtensions": ["ts", "tsx", "js", "jsx", "json", "node"],
+  "globals": {
+    "ts-jest": {
+      "tsConfig": {
+        "isolatedModules": false,
+        "esModuleInterop": true
+      }
+    }
+  }
+}
