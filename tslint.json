@@ -26,7 +26,9 @@
     "curly": false,
     "no-empty": [true, "allow-empty-catch"],
     "member-ordering": false,
-    "no-unused-expression": false
+    "no-unused-expression": false,
+    "only-arrow-functions": false,
+    "ban-types": [true, "Function"]
   },
   "defaultSeverity": "warning"
 }

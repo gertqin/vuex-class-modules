@@ -1,21 +1,10 @@
-import { Store, Module, GetterTree, ActionContext } from "vuex";
+import { Store, Module, GetterTree, ActionContext, Dispatch, Commit } from "vuex";
 
 export interface IVuexClassModule {
   __mutations?: Dictionary<(payload?: any) => void>;
   __actions?: Dictionary<(payload?: any) => Promise<void>>;
 }
-// tslint:disable-next-line:ban-types
 export type VuexClassModule = IVuexClassModule & Function;
-
-type Dictionary<T> = { [k: string]: T };
-
-interface ModuleDefinition {
-  state: Dictionary<any>;
-  getters: Dictionary<() => void>;
-  mutations: Dictionary<(payload?: any) => void>;
-  actions: Dictionary<(payload?: any) => Promise<void>>;
-  helperFunctions: Dictionary<(...args: any[]) => any>;
-}
 
 export interface ModuleOptions {
   name: string;
@@ -28,216 +17,231 @@ export function Module(options: ModuleOptions): ClassDecorator {
 }
 
 function moduleDecoratorFactory(moduleOptions: ModuleOptions) {
-  // tslint:disable-next-line:ban-types
   return <TFunction extends Function>(constructor: TFunction): TFunction | void => {
     if (moduleOptions.store.state[moduleOptions.name]) {
       throw Error(`[vuex-class-module]: A module with name '${moduleOptions.name}' already exists.`);
     }
 
-    const classModule: VuexClassModule = constructor;
-
-    const moduleDefinition = buildModuleDefinition(classModule);
-
-    const vuexModule = buildVuexModule(moduleDefinition, moduleOptions);
-
-    moduleOptions.store.registerModule(moduleOptions.name, vuexModule);
+    const factory = new VuexClassModuleFactory(constructor, moduleOptions);
+    factory.registerVuexModule();
 
     const accessor: any = function() {
-      return buildAccessor(moduleDefinition, moduleOptions);
+      return factory.buildAccessor();
     };
-    accessor.prototype = classModule.prototype;
+    accessor.prototype = constructor.prototype;
     return accessor;
   };
 }
 
-function buildModuleDefinition(classModule: VuexClassModule) {
-  const moduleDefinition: ModuleDefinition = {
-    state: {},
-    getters: {},
-    mutations: classModule.__mutations || {},
-    actions: classModule.__actions || {},
-    helperFunctions: {}
-  };
+type Dictionary<T> = { [k: string]: T };
 
-  // state
-  const classObj = new classModule.prototype.constructor();
-  for (const key of Object.keys(classObj)) {
-    if (classObj.hasOwnProperty(key) && typeof classObj[key] !== "function") {
-      moduleDefinition.state[key] = classObj[key];
-    }
-  }
+interface ModuleDefinition {
+  state: Dictionary<any>;
+  getters: Dictionary<() => void>;
+  mutations: Dictionary<(payload?: any) => void>;
+  actions: Dictionary<(payload?: any) => Promise<void>>;
+  localFunctions: Dictionary<(...args: any[]) => any>;
+}
+interface StoreProxyDefinition {
+  state?: Dictionary<any>;
+  stateSetter?: (key: string, val: any) => void;
 
-  // getters & helper functions
-  const actionsAndMutations = Object.keys(moduleDefinition.mutations).concat(Object.keys(moduleDefinition.actions));
+  getters?: Dictionary<any>;
+  commit?: Commit;
+  dispatch?: Dispatch;
 
-  for (const key of Object.getOwnPropertyNames(classModule.prototype)) {
-    const descriptor = Object.getOwnPropertyDescriptor(classModule.prototype, key) as PropertyDescriptor;
-
-    const isGetter = !!descriptor.get;
-    if (isGetter) {
-      moduleDefinition.getters[key] = descriptor.get!;
-    }
-
-    const isHelperFunction =
-      descriptor.value &&
-      typeof classModule.prototype[key] === "function" &&
-      actionsAndMutations.indexOf(key) === -1 &&
-      key !== "constructor";
-
-    if (isHelperFunction) {
-      moduleDefinition.helperFunctions[key] = classModule.prototype[key];
-    }
-  }
-
-  return moduleDefinition;
+  useNamespaceKey?: boolean;
+  excludeLocalFunctions?: boolean;
 }
 
-function buildVuexModule(moduleDefinition: ModuleDefinition, moduleOptions: ModuleOptions) {
-  const vuexModule = {
-    state: moduleDefinition.state,
+class VuexClassModuleFactory {
+  options: ModuleOptions;
+
+  definition: ModuleDefinition = {
+    state: {},
     getters: {},
     mutations: {},
     actions: {},
-    namespaced: true
-  } as Module<any, any>;
+    localFunctions: {}
+  };
 
-  // getters
-  for (const key of Object.keys(moduleDefinition.getters)) {
-    const getter = moduleDefinition.getters[key];
-    vuexModule.getters![key] = (state: any, getters: GetterTree<any, any>) => {
-      const thisObj: any = {};
-      addState(thisObj, moduleDefinition, state);
-      addGetters(thisObj, moduleDefinition, moduleOptions);
-      addHelperFunctions(thisObj, moduleDefinition);
-
-      return getter.call(thisObj);
-    };
+  constructor(classModule: VuexClassModule, moduleOptions: ModuleOptions) {
+    this.options = moduleOptions;
+    this.init(classModule);
   }
 
-  // mutations
-  for (const key of Object.keys(moduleDefinition.mutations)) {
-    const mutationFunction = moduleDefinition.mutations[key];
+  private init(classModule: VuexClassModule) {
+    // state
+    const classObj = new classModule.prototype.constructor();
+    for (const key of Object.keys(classObj)) {
+      if (classObj.hasOwnProperty(key) && typeof classObj[key] !== "function") {
+        this.definition.state[key] = classObj[key];
+      }
+    }
 
-    const mutation = (state: any, payload: any) => {
-      const thisObj: any = {};
-      addState(thisObj, moduleDefinition, state, (field, val) => (state[field] = val));
-      addHelperFunctions(thisObj, moduleDefinition);
+    this.definition.mutations = classModule.__mutations || {};
+    this.definition.actions = classModule.__actions || {};
 
-      mutationFunction.call(thisObj, payload);
-    };
-    vuexModule.mutations![key as string] = mutation;
-  }
-  if (moduleOptions.generateMutationSetters) {
-    for (const stateKey of Object.keys(moduleDefinition.state)) {
-      const mutation = (state: any, payload: any) => {
-        state[stateKey] = payload;
-      };
-      vuexModule.mutations![getMutationSetterName(stateKey)] = mutation;
+    // getters & helper functions
+    const actionKeys = Object.keys(this.definition.mutations);
+    const mutationKeys = Object.keys(this.definition.actions);
+
+    for (const key of Object.getOwnPropertyNames(classModule.prototype)) {
+      const descriptor = Object.getOwnPropertyDescriptor(classModule.prototype, key) as PropertyDescriptor;
+
+      const isGetter = !!descriptor.get;
+      if (isGetter) {
+        this.definition.getters[key] = descriptor.get!;
+      }
+
+      const isHelperFunction =
+        descriptor.value &&
+        typeof classModule.prototype[key] === "function" &&
+        actionKeys.indexOf(key) === -1 &&
+        mutationKeys.indexOf(key) === -1 &&
+        key !== "constructor";
+
+      if (isHelperFunction) {
+        this.definition.localFunctions[key] = classModule.prototype[key];
+      }
     }
   }
 
-  // actions
-  for (const key of Object.keys(moduleDefinition.actions)) {
-    const actionFunction = moduleDefinition.actions[key];
-    const action = (context: ActionContext<any, any>, payload: any) => {
-      const thisObj: any = {};
+  registerVuexModule() {
+    const vuexModule = {
+      state: this.definition.state,
+      getters: {},
+      mutations: {},
+      actions: {},
+      namespaced: true
+    } as Module<any, any>;
 
-      const stateSet = moduleOptions.generateMutationSetters
-        ? (field: string, val: any) => {
-            context.commit(getMutationSetterName(field), val);
+    // getters
+    for (const key of Object.keys(this.definition.getters)) {
+      const getter = this.definition.getters[key];
+      vuexModule.getters![key] = (state: any, getters: GetterTree<any, any>) => {
+        const thisObj: any = {};
+        this.buildThisProxy(thisObj, { state, getters });
+        return getter.call(thisObj);
+      };
+    }
+
+    // mutations
+    for (const key of Object.keys(this.definition.mutations)) {
+      const mutationFunction = this.definition.mutations[key];
+      const mutation = (state: any, payload: any) => {
+        const thisObj: any = {};
+        this.buildThisProxy(thisObj, {
+          state,
+          stateSetter: (stateField: string, val: any) => {
+            state[stateField] = val;
           }
-        : undefined;
-      addState(thisObj, moduleDefinition, context.state, stateSet);
-
-      addGetters(thisObj, moduleDefinition, moduleOptions);
-      addMutations(thisObj, moduleDefinition, moduleOptions);
-      addActions(thisObj, moduleDefinition, moduleOptions);
-      addHelperFunctions(thisObj, moduleDefinition);
-
-      return actionFunction.call(thisObj, payload);
-    };
-    vuexModule.actions![key as string] = action;
-  }
-
-  return vuexModule;
-}
-
-function buildAccessor(moduleDefinition: ModuleDefinition, moduleOptions: ModuleOptions) {
-  const { store, name } = moduleOptions;
-
-  const accessorModule: any = {};
-
-  addState(accessorModule, moduleDefinition, store.state[name]);
-  addGetters(accessorModule, moduleDefinition, moduleOptions);
-  addMutations(accessorModule, moduleDefinition, moduleOptions);
-  addActions(accessorModule, moduleDefinition, moduleOptions);
-
-  for (const key of Object.keys(moduleDefinition.helperFunctions)) {
-    accessorModule[key as string] = (...args: any[]) => {
-      warn("Only Mutations or Actions should be called outside the module.");
-    };
-  }
-
-  return accessorModule;
-}
-
-function getMutationSetterName(stateKey: string) {
-  return "set__" + stateKey;
-}
-
-function addState(
-  obj: any,
-  moduleDefinition: ModuleDefinition,
-  storeState: any,
-  set?: (field: string, val: any) => void
-) {
-  for (const field of Object.keys(moduleDefinition.state)) {
-    Object.defineProperty(obj, field, {
-      get() {
-        return storeState[field];
-      },
-      set: set
-        ? (val: any) => set(field, val)
-        : () => {
-            throw Error("[vuex-class-module]: Cannot modify state outside mutations.");
-          }
-    });
-  }
-}
-
-function addGetters(obj: any, moduleDefinition: ModuleDefinition, { store, name }: ModuleOptions) {
-  for (const getter of Object.keys(moduleDefinition.getters)) {
-    Object.defineProperty(obj, getter, {
-      get() {
-        return store.getters[`${name}/${getter}`];
+        });
+        mutationFunction.call(thisObj, payload);
+      };
+      vuexModule.mutations![key as string] = mutation;
+    }
+    if (this.options.generateMutationSetters) {
+      for (const stateKey of Object.keys(this.definition.state)) {
+        const mutation = (state: any, payload: any) => {
+          state[stateKey] = payload;
+        };
+        vuexModule.mutations![this.getMutationSetterName(stateKey)] = mutation;
       }
+    }
+
+    // actions
+    for (const key of Object.keys(this.definition.actions)) {
+      const actionFunction = this.definition.actions[key];
+      const action = (context: ActionContext<any, any>, payload: any) => {
+        const thisObj: any = {};
+
+        const proxyDefinition: StoreProxyDefinition = {
+          ...context,
+          stateSetter: this.options.generateMutationSetters
+            ? (field: string, val: any) => {
+                context.commit(this.getMutationSetterName(field), val);
+              }
+            : undefined
+        };
+        this.buildThisProxy(thisObj, proxyDefinition);
+
+        return actionFunction.call(thisObj, payload);
+      };
+      vuexModule.actions![key as string] = action;
+    }
+
+    this.options.store.registerModule(this.options.name, vuexModule);
+  }
+
+  buildAccessor() {
+    const accessorModule: any = {};
+    const store = this.options.store;
+    this.buildThisProxy(accessorModule, {
+      ...store,
+      state: store.state[this.options.name],
+      useNamespaceKey: true,
+      excludeLocalFunctions: true
     });
-  }
-}
 
-function addMutations(obj: any, moduleDefinition: ModuleDefinition, { store, name }: ModuleOptions) {
-  for (const key of Object.keys(moduleDefinition.mutations)) {
-    obj[key as string] = (payload?: any) => {
-      store.commit(`${name}/${key}`, payload);
-    };
+    return accessorModule;
   }
-}
-function addActions(obj: any, moduleDefinition: ModuleDefinition, { store, name }: ModuleOptions) {
-  for (const key of Object.keys(moduleDefinition.actions)) {
-    obj[key as string] = (payload?: any) => {
-      return store.dispatch(`${name}/${key}`, payload);
-    };
-  }
-}
-function addHelperFunctions(obj: any, moduleDefinition: ModuleDefinition) {
-  for (const key of Object.keys(moduleDefinition.helperFunctions)) {
-    const helperFunction = moduleDefinition.helperFunctions[key];
-    obj[key] = (...args: any[]) => {
-      return helperFunction.apply(obj, args);
-    };
-  }
-}
 
-function warn(text: string) {
-  console.warn("[vuex-class-module]: " + text);
+  private buildThisProxy(obj: any, store: StoreProxyDefinition) {
+    const namespaceKey = store.useNamespaceKey ? this.options.name + "/" : "";
+
+    if (store.state) {
+      for (const key of Object.keys(this.definition.state)) {
+        Object.defineProperty(obj, key, {
+          get() {
+            return store.state![key];
+          },
+          set: store.stateSetter
+            ? (val: any) => store.stateSetter!(key, val)
+            : () => {
+                throw Error("[vuex-class-module]: Cannot modify state outside mutations.");
+              }
+        });
+      }
+    }
+
+    if (store.getters) {
+      for (const key of Object.keys(this.definition.getters)) {
+        Object.defineProperty(obj, key, {
+          get() {
+            return store.getters![`${namespaceKey}${key}`];
+          }
+        });
+      }
+    }
+
+    if (store.commit) {
+      for (const key of Object.keys(this.definition.mutations)) {
+        obj[key as string] = (payload?: any) => {
+          store.commit!(`${namespaceKey}${key}`, payload);
+        };
+      }
+    }
+
+    if (store.dispatch) {
+      for (const key of Object.keys(this.definition.actions)) {
+        obj[key as string] = (payload?: any) => {
+          return store.dispatch!(`${namespaceKey}${key}`, payload);
+        };
+      }
+    }
+
+    if (!store.excludeLocalFunctions) {
+      for (const key of Object.keys(this.definition.localFunctions)) {
+        const localFunction = this.definition.localFunctions[key];
+        obj[key] = (...args: any[]) => {
+          return localFunction.apply(obj, args);
+        };
+      }
+    }
+  }
+
+  private getMutationSetterName(stateKey: string) {
+    return "set__" + stateKey;
+  }
 }
