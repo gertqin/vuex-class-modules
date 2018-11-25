@@ -70,7 +70,7 @@ function buildModuleDefinition(classModule: VuexClassModule) {
   // getters & helper functions
   const actionsAndMutations = Object.keys(moduleDefinition.mutations).concat(Object.keys(moduleDefinition.actions));
 
-  for (const key of Object.keys(classModule.prototype)) {
+  for (const key of Object.getOwnPropertyNames(classModule.prototype)) {
     const descriptor = Object.getOwnPropertyDescriptor(classModule.prototype, key) as PropertyDescriptor;
 
     const isGetter = !!descriptor.get;
@@ -79,7 +79,10 @@ function buildModuleDefinition(classModule: VuexClassModule) {
     }
 
     const isHelperFunction =
-      descriptor.value && typeof classModule.prototype[key] === "function" && actionsAndMutations.indexOf(key) === -1;
+      descriptor.value &&
+      typeof classModule.prototype[key] === "function" &&
+      actionsAndMutations.indexOf(key) === -1 &&
+      key !== "constructor";
 
     if (isHelperFunction) {
       moduleDefinition.helperFunctions[key] = classModule.prototype[key];
