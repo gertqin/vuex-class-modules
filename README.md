@@ -1,7 +1,7 @@
 # vuex-class-modules
 This is yet another package to introduce a simple type-safe class style syntax for your vuex modules, inspired by [vue-class-component](https://github.com/vuejs/vue-class-component).
 
-[![npm](https://img.shields.io/npm/v/svg)](https://img.shields.io/npm/v/vuex-class-modules.svg)
+[![npm](https://img.shields.io/npm/v/vuex-class-modules.svg)](https://www.npmjs.com/package/vuex-class-modules)
 
 ## Installation
 `npm install vuex-class-modules`
