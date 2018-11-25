@@ -2,7 +2,7 @@
 Typescript class decorators for class-style vuex modules.
 
 ## Introduction
-This is yet another attempt to introduce a simple type-safe class style syntax for your vuex modules, highly inspired by [vue-class-component](https://github.com/vuejs/vue-class-component).
+This is yet another attempt to introduce a simple type-safe class style syntax for your vuex modules, inspired by [vue-class-component](https://github.com/vuejs/vue-class-component).
 
 ## Installation
 `npm install vuex-class-modules`
@@ -50,7 +50,7 @@ class UserModule {
 export const userModule = new UserModule();
 ```
 
-The module will automatically be registered to the store as a namespaced dynamic module with name when it is imported. (The modules are namespaced to avoid name conflicts between modules for getters/mutations/actions.)
+The module will automatically be registered to the store as a namespaced dynamic module with when it is imported. (The modules are namespaced to avoid name conflicts between modules for getters/mutations/actions.)
 
 The module can then be used in a vue component:
 
@@ -74,7 +74,29 @@ export class MyComponent extends Vue {
 }
 ```
 
-## Module Options
+### What about `rootState` and `rootGetters`?
+
+To access another module within a module, or dispatch an action to another module, simply import the other module:
+
+```ts
+// my-module.ts
+import myOtherModule from "./my-other-module";
+
+@Module({ name: "myModule", store })
+class MyModule {
+  get myGetter() {
+    return myOtherModule.foo;
+  }
+
+  @Action
+  async myAction() {
+    await myOtherModule.fireAction();
+    // ...
+  }
+}
+```
+
+### Module options
 * `name` [required]: Name of the module
 * `store` [required]: The vuex store obj - which can just be empty:
 ```ts
@@ -84,7 +106,7 @@ import Vuex from "vuex";
 Vue.use(Vuex);
 export const store = new Vuex.Store({})
 ```
-* `generateMutationSetters` [optional, default=false]: Whether automatic mutation setters for the state properties should be generated, see [Generate Mutation Setters](#generate-mutation-setters)
+* `generateMutationSetters` [optional, default=false]: Whether automatic mutation setters for the state properties should be generated, see [Generate Mutation Setters](#generate-mutation-setters).
 
 ## Caveats of `this`
 As for vue-class-component `this` inside the module is just a proxy object to the store and can therefore only access what the corresponding store function would be able to access:
@@ -206,3 +228,7 @@ class UserModule {
   }
 }
 ```
+
+## License
+
+[MIT](http://opensource.org/licenses/MIT)
