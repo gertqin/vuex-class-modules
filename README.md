@@ -113,7 +113,7 @@ The vuex shopping cart example rewritten using `vue-class-component` and `vuex-c
 `npm run example`
 
 ## Caveats of `this`
-As for vue-class-component `this` inside the module is just a proxy object to the store and can therefore only access what the corresponding store function would be able to access:
+As for vue-class-component `this` inside the module is just a proxy object to the store and can therefore only access what the corresponding module function would be able to access:
 
 ```ts
 @Module({ name: "myModule", store })
