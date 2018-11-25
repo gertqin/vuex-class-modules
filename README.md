@@ -1,7 +1,4 @@
 # vuex-class-modules
-Typescript class decorators for class-style vuex modules.
-
-## Introduction
 This is yet another attempt to introduce a simple type-safe class style syntax for your vuex modules, inspired by [vue-class-component](https://github.com/vuejs/vue-class-component).
 
 ## Installation
@@ -109,7 +106,7 @@ export default new Vuex.Store({})
 * `generateMutationSetters` [optional, default=false]: Whether automatic mutation setters for the state properties should be generated, see [Generate Mutation Setters](#generate-mutation-setters).
 
 ## Example
-The vuex shopping cart example rewritten using `vue-class-component` and `vuex-class-modules` can be found in the [example directory](/blob/master/example). Build the example using:
+The vuex shopping cart example rewritten using `vue-class-component` and `vuex-class-modules` can be found in the [example directory](/example). Build the example using:
 
 `npm run example`
 
