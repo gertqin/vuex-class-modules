@@ -1,5 +1,7 @@
 # vuex-class-modules
-This is yet another attempt to introduce a simple type-safe class style syntax for your vuex modules, inspired by [vue-class-component](https://github.com/vuejs/vue-class-component).
+This is yet another package to introduce a simple type-safe class style syntax for your vuex modules, inspired by [vue-class-component](https://github.com/vuejs/vue-class-component).
+
+[![npm](https://img.shields.io/npm/v/svg)](https://img.shields.io/npm/v/vuex-class-modules.svg)
 
 ## Installation
 `npm install vuex-class-modules`
@@ -149,7 +151,7 @@ class MyModule {
 ```
 
 ## Local Functions
-The module can have non-mutation/action functions which can be used inside the module. As these will not be exposed outside the module, they should always be private. The `this` obj will be passed to the local function from the getter/mutation/action.
+The module can have non-mutation/action functions which can be used inside the module. As these will not be exposed outside the module, they should always be private. `this` will be passed to the local function from the getter/mutation/action.
 
 ```ts
 @Module({ name: "myModule", store })
@@ -214,19 +216,25 @@ class UserModule {
 }
 ```
 
-_NOTE:_ Setters are only generated for root-level state properties, i.e.
+_NOTE:_ Setters are only generated for root-level state properties, so to update a property of an object you have to use a mutation or replace the entire object: 
 
 ```ts
 @Module({ name: "user", store, generateMutationSetters: true })
 class UserModule {
   user = {
+    id: 123,
     name: "Foo"
   };
+
+  @Mutation 
+  setUserName() {
+    this.user.name = "Bar"; // OK!
+  }
 
   @Action
   async loadUser() {
     this.user.name = "Bar"; // Bad, the state is mutated outside a mutation
-    this.user = { name: "Bar" }; // OK!
+    this.user = { ...this.user, name: "Bar" }; // OK!
   }
 }
 ```
