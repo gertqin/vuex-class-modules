@@ -9,7 +9,7 @@ export function Action<T>(
   if (!vuexModule.__actions) {
     vuexModule.__actions = {};
   }
-  // tslint:disable-next-line:no-empty
-  const actionFunc = descriptor.value ? descriptor.value : async () => {};
-  vuexModule.__actions[key as string] = actionFunc;
+  if (descriptor.value) {
+    vuexModule.__actions[key as string] = descriptor.value;
+  }
 }

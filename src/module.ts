@@ -139,7 +139,7 @@ function buildVuexModule(moduleDefinition: ModuleDefinition, moduleOptions: Modu
   // actions
   for (const key of Object.keys(moduleDefinition.actions)) {
     const actionFunction = moduleDefinition.actions[key];
-    const action = async (context: ActionContext<any, any>, payload: any) => {
+    const action = (context: ActionContext<any, any>, payload: any) => {
       const thisObj: any = {};
 
       const stateSet = moduleOptions.generateMutationSetters
@@ -154,7 +154,7 @@ function buildVuexModule(moduleDefinition: ModuleDefinition, moduleOptions: Modu
       addActions(thisObj, moduleDefinition, moduleOptions);
       addHelperFunctions(thisObj, moduleDefinition);
 
-      await actionFunction.call(thisObj, payload);
+      return actionFunction.call(thisObj, payload);
     };
     vuexModule.actions![key as string] = action;
   }
@@ -224,8 +224,8 @@ function addMutations(obj: any, moduleDefinition: ModuleDefinition, { store, nam
 }
 function addActions(obj: any, moduleDefinition: ModuleDefinition, { store, name }: ModuleOptions) {
   for (const key of Object.keys(moduleDefinition.actions)) {
-    obj[key as string] = async (payload?: any) => {
-      await store.dispatch(`${name}/${key}`, payload);
+    obj[key as string] = (payload?: any) => {
+      return store.dispatch(`${name}/${key}`, payload);
     };
   }
 }
