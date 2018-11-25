@@ -1,9 +1,16 @@
 {
   "editor.rulers": [ 120 ],
   "prettier.printWidth": 120,
+  "prettier.disableLanguages": [],
 
   "[typescript]": {
     "editor.formatOnSave": true
   },
-  "tslint.autoFixOnSave": true
+  "[vue]": {
+    "editor.formatOnSave": true
+  },
+  "tslint.autoFixOnSave": true,
+
+  "vetur.format.defaultFormatter.html": "none",
+  "vetur.format.defaultFormatter.ts": "none"
 }

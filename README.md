@@ -104,9 +104,14 @@ class MyModule {
 import Vue from "vue"
 import Vuex from "vuex";
 Vue.use(Vuex);
-export const store = new Vuex.Store({})
+export default new Vuex.Store({})
 ```
 * `generateMutationSetters` [optional, default=false]: Whether automatic mutation setters for the state properties should be generated, see [Generate Mutation Setters](#generate-mutation-setters).
+
+## Example
+The vuex shopping cart example rewritten using `vue-class-component` and `vuex-class-modules` can be found in the [example directory](/blob/master/example). Build the example using:
+
+`npm run example`
 
 ## Caveats of `this`
 As for vue-class-component `this` inside the module is just a proxy object to the store and can therefore only access what the corresponding store function would be able to access:

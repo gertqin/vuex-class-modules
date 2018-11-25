@@ -1,2 +1,4 @@
 node_modules
 /lib
+/example/build.js
+/example/build.js.map

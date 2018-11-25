@@ -10,8 +10,10 @@
     "declaration": true,
     "outDir": "./lib",
     "strict": true,
-    "noUnusedLocals": true
+    "noUnusedLocals": true,
     // "noUnusedParameters": true
+
+    "experimentalDecorators": true
   },
   "include": ["src"],
   "exclude": ["node_modules", "**/__tests__/*"]
