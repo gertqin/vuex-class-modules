@@ -64,7 +64,7 @@ class Cart {
     this.items = [];
 
     try {
-      shop.buyProducts(savedCartItems);
+      await shop.buyProducts(savedCartItems);
       this.checkoutStatus = "successful";
     } catch (e) {
       this.items = savedCartItems;
