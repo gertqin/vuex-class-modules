@@ -49,7 +49,7 @@ class UserModule {
 export const userModule = new UserModule();
 ```
 
-The module will automatically be registered to the store as a namespaced dynamic module with when it is imported. (The modules are namespaced to avoid name conflicts between modules for getters/mutations/actions.)
+The module will automatically be registered to the store as a namespaced dynamic module when it is imported. (The modules are namespaced to avoid name conflicts between modules for getters/mutations/actions.)
 
 The module can then be used in a vue component:
 
@@ -89,7 +89,7 @@ class MyModule {
 
   @Action
   async myAction() {
-    await myOtherModule.fireAction();
+    await myOtherModule.someAction();
     // ...
   }
 }
@@ -97,7 +97,7 @@ class MyModule {
 
 ### Module options
 * `name` [required]: Name of the module
-* `store` [required]: The vuex store obj - which can just be empty:
+* `store` [required]: The vuex store - which can just be instantiated as empty:
 ```ts
 // store.ts
 import Vue from "vue"
@@ -113,7 +113,7 @@ The vuex shopping cart example rewritten using `vue-class-component` and `vuex-c
 `npm run example`
 
 ## Caveats of `this`
-As for vue-class-component `this` inside the module is just a proxy object to the store and can therefore only access what the corresponding module function would be able to access:
+As for vue-class-component `this` inside the module is just a proxy object to the store. It can therefore only access what the corresponding vuex module function would be able to access:
 
 ```ts
 @Module({ name: "myModule", store })
@@ -151,7 +151,7 @@ class MyModule {
 ```
 
 ## Local Functions
-The module can have non-mutation/action functions which can be used inside the module. As these will not be exposed outside the module, they should always be private. `this` will be passed to the local function from the getter/mutation/action.
+The module can have non-mutation/action functions which can be used inside the module. As these will not be exposed outside the module, they should always be private. `this` will be passed on to the local function from the getter/mutation/action.
 
 ```ts
 @Module({ name: "myModule", store })
@@ -216,7 +216,7 @@ class UserModule {
 }
 ```
 
-_NOTE:_ Setters are only generated for root-level state properties, so to update a property of an object you have to use a mutation or replace the entire object: 
+_NOTE:_ Setters are only generated for root-level state properties, so in order to update a property of an object you have to use a mutation or replace the entire object: 
 
 ```ts
 @Module({ name: "user", store, generateMutationSetters: true })
