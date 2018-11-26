@@ -1,4 +1,4 @@
-import { VuexClassModule } from "./module";
+import { VuexClassModule } from "./module-factory";
 
 export function Mutation<T>(target: T, key: string | symbol, descriptor: TypedPropertyDescriptor<(arg?: any) => void>) {
   const vuexModule = target.constructor as VuexClassModule;

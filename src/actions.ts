@@ -1,4 +1,4 @@
-import { VuexClassModule } from "./module";
+import { VuexClassModule } from "./module-factory";
 
 export function Action<T>(
   target: T,
