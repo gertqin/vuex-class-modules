@@ -1,12 +1,12 @@
-import { Module, Mutation, Action } from "../src";
+import { Module, Mutation, Action, VuexModule } from "../src";
 import Vuex, { Payload, MutationPayload } from "vuex";
 import Vue from "vue";
 
 Vue.use(Vuex);
 const store = new Vuex.Store<any>({});
 
-@Module({ name: "myModule", store })
-class MyModule {
+@Module()
+class MyModule extends VuexModule {
   documentId = 0;
   text = "";
 
@@ -41,7 +41,7 @@ class MyModule {
   }
 }
 
-const myModule = new MyModule();
+const myModule = new MyModule({ store, name: "myModule" });
 
 interface ActionPayload extends Payload {
   payload?: any;

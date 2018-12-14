@@ -1,9 +1,9 @@
 import store from "./";
 import shop, { Product } from "../api/shop";
-import { Module, Mutation, Action } from "../../../lib/index";
+import { Module, Mutation, Action, VuexModule } from "../../../lib/index";
 
-@Module({ name: "products", store, generateMutationSetters: true })
-class Products {
+@Module({ generateMutationSetters: true })
+class Products extends VuexModule {
   all: Product[] = [];
 
   @Mutation
@@ -18,4 +18,4 @@ class Products {
   }
 }
 
-export const productsModule = new Products();
+export const productsModule = new Products({ store, name: "products" });

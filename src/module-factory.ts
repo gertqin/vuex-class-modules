@@ -1,21 +1,29 @@
-import { Store, Module as VuexModule, GetterTree, ActionContext, Dispatch, Commit } from "vuex";
+import { Store, Module as StoreModule, GetterTree, ActionContext, Dispatch, Commit } from "vuex";
+import { VuexModule } from "./VuexModule";
 
 export interface ModuleOptions {
-  name: string;
-  store: Store<any>;
   generateMutationSetters?: boolean;
 }
 
-export interface IVuexClassModule {
+export interface RegisterOptions {
+  store: Store<any>;
+  name: string;
+}
+
+export interface IVuexModule extends Dictionary<any> {
+  __options: RegisterOptions;
+}
+export interface IModulePrototype {
   __mutations?: Dictionary<(payload?: any) => void>;
   __actions?: Dictionary<(payload?: any) => Promise<void>>;
 }
-export type VuexClassModule = IVuexClassModule & Function;
+export type ModulePrototype = IModulePrototype & Function;
 
 type Dictionary<T> = { [k: string]: T };
 
 interface ModuleDefinition {
   state: Dictionary<any>;
+  moduleRefs: Dictionary<VuexModule>;
   getters: Dictionary<() => void>;
   mutations: Dictionary<(payload?: any) => void>;
   actions: Dictionary<(payload?: any) => Promise<void>>;
@@ -30,31 +38,39 @@ interface StoreProxyDefinition {
   dispatch?: Dispatch;
 
   useNamespaceKey?: boolean;
+  excludeModuleRefs?: boolean;
   excludeLocalFunctions?: boolean;
 }
 
 export class VuexClassModuleFactory {
-  options: ModuleOptions;
+  moduleOptions: ModuleOptions;
+  registerOptions: RegisterOptions;
 
   definition: ModuleDefinition = {
     state: {},
+    moduleRefs: {},
     getters: {},
     mutations: {},
     actions: {},
     localFunctions: {}
   };
 
-  constructor(classModule: VuexClassModule, moduleOptions: ModuleOptions) {
-    this.options = moduleOptions;
-    this.init(classModule);
+  constructor(classModule: ModulePrototype, instance: IVuexModule, moduleOptions: ModuleOptions) {
+    this.moduleOptions = moduleOptions;
+    this.registerOptions = instance.__options;
+    this.init(classModule, instance);
   }
 
-  private init(classModule: VuexClassModule) {
+  private init(classModule: ModulePrototype, instance: IVuexModule) {
     // state
-    const classObj = new classModule.prototype.constructor();
-    for (const key of Object.keys(classObj)) {
-      if (classObj.hasOwnProperty(key) && typeof classObj[key] !== "function") {
-        this.definition.state[key] = classObj[key];
+    for (const key of Object.keys(instance)) {
+      const val = instance[key];
+      if (key !== "__options" && instance.hasOwnProperty(key) && typeof val !== "function") {
+        if (val instanceof VuexModule) {
+          this.definition.moduleRefs[key] = val;
+        } else {
+          this.definition.state[key] = instance[key];
+        }
       }
     }
 
@@ -87,7 +103,7 @@ export class VuexClassModuleFactory {
   }
 
   registerVuexModule() {
-    const vuexModule: VuexModule<any, any> = {
+    const vuexModule: StoreModule<any, any> = {
       state: this.definition.state,
       getters: {},
       mutations: {},
@@ -115,7 +131,7 @@ export class VuexClassModuleFactory {
         mutation.call(thisObj, payload);
       };
     });
-    if (this.options.generateMutationSetters) {
+    if (this.moduleOptions.generateMutationSetters) {
       for (const stateKey of Object.keys(this.definition.state)) {
         const mutation = (state: any, payload: any) => {
           state[stateKey] = payload;
@@ -129,7 +145,7 @@ export class VuexClassModuleFactory {
       return (context: ActionContext<any, any>, payload: any) => {
         const proxyDefinition: StoreProxyDefinition = {
           ...context,
-          stateSetter: this.options.generateMutationSetters
+          stateSetter: this.moduleOptions.generateMutationSetters
             ? (field: string, val: any) => {
                 context.commit(this.getMutationSetterName(field), val);
               }
@@ -142,7 +158,7 @@ export class VuexClassModuleFactory {
     });
 
     // register module
-    const { store, name } = this.options;
+    const { store, name } = this.registerOptions;
     if (store.state[name]) {
       if (module.hot) {
         store.hotUpdate({
@@ -154,18 +170,22 @@ export class VuexClassModuleFactory {
         throw Error(`[vuex-class-module]: A module with name '${name}' already exists.`);
       }
     } else {
-      store.registerModule(this.options.name, vuexModule);
+      store.registerModule(this.registerOptions.name, vuexModule);
     }
   }
 
-  buildAccessor() {
-    const { store, name } = this.options;
+  buildAccessor(instance: IVuexModule) {
+    const { store, name } = this.registerOptions;
     const accessorModule = this.buildThisProxy({
       ...store,
       state: store.state[name],
       useNamespaceKey: true,
+      excludeModuleRefs: true,
       excludeLocalFunctions: true
     });
+
+    Object.setPrototypeOf(accessorModule, Object.getPrototypeOf(instance));
+    Object.freeze(accessorModule);
 
     return accessorModule;
   }
@@ -185,8 +205,11 @@ export class VuexClassModuleFactory {
             }
       );
     }
+    if (!proxyDefinition.excludeModuleRefs) {
+      mapValues(obj, this.definition.moduleRefs, val => val);
+    }
 
-    const namespaceKey = proxyDefinition.useNamespaceKey ? this.options.name + "/" : "";
+    const namespaceKey = proxyDefinition.useNamespaceKey ? this.registerOptions.name + "/" : "";
 
     if (proxyDefinition.getters) {
       mapValuesToProperty(obj, this.definition.getters, key => proxyDefinition.getters![`${namespaceKey}${key}`]);

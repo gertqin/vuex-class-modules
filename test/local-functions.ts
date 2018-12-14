@@ -1,12 +1,12 @@
 import Vue from "vue";
 import Vuex from "vuex";
-import { Action, Module, Mutation } from "../src";
+import { Action, Module, Mutation, VuexModule } from "../src";
 
 Vue.use(Vuex);
 const store = new Vuex.Store<any>({});
 
-@Module({ name: "myModule", store })
-class MyModule {
+@Module()
+class MyModule extends VuexModule {
   canTransform = true;
   text = "some text";
 
@@ -42,7 +42,7 @@ class MyModule {
   }
 }
 
-const myModule = new MyModule();
+const myModule = new MyModule({ store, name: "myModule" });
 
 describe("local-functions", () => {
   test("from getter", () => {

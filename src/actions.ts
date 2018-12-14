@@ -1,11 +1,11 @@
-import { VuexClassModule } from "./module-factory";
+import { ModulePrototype } from "./module-factory";
 
 export function Action<T>(
   target: T,
   key: string | symbol,
   descriptor: TypedPropertyDescriptor<(arg?: any) => Promise<void>>
 ) {
-  const vuexModule = target.constructor as VuexClassModule;
+  const vuexModule = target.constructor as ModulePrototype;
   if (!vuexModule.__actions) {
     vuexModule.__actions = {};
   }

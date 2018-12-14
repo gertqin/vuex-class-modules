@@ -1,10 +1,10 @@
 import store from "./";
 import shop, { CartItem, Product } from "../api/shop";
-import { Module, Mutation, Action } from "../../../lib/index";
+import { Module, Mutation, Action, VuexModule } from "../../../lib/index";
 import { productsModule } from "./products";
 
-@Module({ name: "cart", store, generateMutationSetters: true })
-class Cart {
+@Module({ generateMutationSetters: true })
+class Cart extends VuexModule {
   items: CartItem[] = [];
   checkoutStatus = "";
 
@@ -73,4 +73,4 @@ class Cart {
   }
 }
 
-export const cartModule = new Cart();
+export const cartModule = new Cart({ store, name: "cart" });

@@ -10,8 +10,6 @@
     "declaration": true,
     "outDir": "./lib",
     "strict": true,
-    "noUnusedLocals": true,
-    // "noUnusedParameters": true
 
     "experimentalDecorators": true
   },

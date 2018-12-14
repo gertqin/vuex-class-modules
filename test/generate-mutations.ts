@@ -1,12 +1,12 @@
 import Vue from "vue";
 import Vuex, { MutationPayload } from "vuex";
-import { Action, Module } from "../src";
+import { Action, Module, VuexModule } from "../src";
 
 Vue.use(Vuex);
 const store = new Vuex.Store<any>({});
 
-@Module({ name: "myModule", store, generateMutationSetters: true })
-class MyModule {
+@Module({ generateMutationSetters: true })
+class MyModule extends VuexModule {
   id = 0;
   text = "";
 
@@ -18,7 +18,7 @@ class MyModule {
   }
 }
 
-const myModule = new MyModule();
+const myModule = new MyModule({ store, name: "myModule" });
 
 test("generate-mutations", async () => {
   const mutationObserver = jest.fn((mutation: MutationPayload) => mutation);

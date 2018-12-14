@@ -28,7 +28,8 @@
     "member-ordering": false,
     "no-unused-expression": false,
     "only-arrow-functions": false,
-    "ban-types": [true, "Function"]
+    "ban-types": [true, "Function"],
+    "variable-name": false
   },
   "defaultSeverity": "warning"
 }

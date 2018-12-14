@@ -1,12 +1,12 @@
-import { Module, Mutation } from "../src";
+import { Module, Mutation, VuexModule } from "../src";
 import Vuex, { MutationPayload } from "vuex";
 import Vue from "vue";
 
 Vue.use(Vuex);
 const store = new Vuex.Store<any>({});
 
-@Module({ name: "myModule", store })
-class MyModule {
+@Module()
+class MyModule extends VuexModule {
   shouldUpdate = true;
   text = "";
 
@@ -18,7 +18,7 @@ class MyModule {
   }
 }
 
-const myModule = new MyModule();
+const myModule = new MyModule({ store, name: "myModule" });
 
 describe("mutations", () => {
   test("accessor calls commit", () => {

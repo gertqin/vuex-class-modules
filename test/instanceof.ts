@@ -15,10 +15,7 @@ class MyModule extends VuexModule {
 
 const myModule = new MyModule({ store, name: "myModule" });
 
-test("state", () => {
-  expect(myModule.foo).toBe(store.state.myModule.foo);
-  expect(myModule.foo.text).toBe("some text");
-
-  expect(myModule.bar).toBe(store.state.myModule.bar);
-  expect(myModule.bar).toBe(1);
+test("instance of", () => {
+  expect(myModule instanceof MyModule).toBe(true);
+  expect(myModule instanceof VuexModule).toBe(true);
 });
