@@ -5,12 +5,12 @@ import Vue from "vue";
 Vue.use(Vuex);
 const store = new Vuex.Store<any>({});
 
-@Module()
+@Module
 class MyModule extends VuexModule {
   foo = "bar";
 }
 
-@Module()
+@Module
 class OtherModule extends VuexModule {
   private myModule: MyModule;
 

@@ -5,7 +5,7 @@ import { Action, Module, Mutation, VuexModule } from "../src";
 Vue.use(Vuex);
 const store = new Vuex.Store<any>({});
 
-@Module()
+@Module
 class MyModule extends VuexModule {
   canTransform = true;
   text = "some text";

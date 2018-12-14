@@ -44,6 +44,7 @@ interface StoreProxyDefinition {
 
 export class VuexClassModuleFactory {
   moduleOptions: ModuleOptions;
+  instance: IVuexModule;
   registerOptions: RegisterOptions;
 
   definition: ModuleDefinition = {
@@ -57,19 +58,20 @@ export class VuexClassModuleFactory {
 
   constructor(classModule: ModulePrototype, instance: IVuexModule, moduleOptions: ModuleOptions) {
     this.moduleOptions = moduleOptions;
+    this.instance = instance;
     this.registerOptions = instance.__options;
-    this.init(classModule, instance);
+    this.init(classModule);
   }
 
-  private init(classModule: ModulePrototype, instance: IVuexModule) {
+  private init(classModule: ModulePrototype) {
     // state
-    for (const key of Object.keys(instance)) {
-      const val = instance[key];
-      if (key !== "__options" && instance.hasOwnProperty(key) && typeof val !== "function") {
+    for (const key of Object.keys(this.instance)) {
+      const val = this.instance[key];
+      if (key !== "__options" && this.instance.hasOwnProperty(key) && typeof val !== "function") {
         if (val instanceof VuexModule) {
           this.definition.moduleRefs[key] = val;
         } else {
-          this.definition.state[key] = instance[key];
+          this.definition.state[key] = this.instance[key];
         }
       }
     }
@@ -174,7 +176,7 @@ export class VuexClassModuleFactory {
     }
   }
 
-  buildAccessor(instance: IVuexModule) {
+  buildAccessor() {
     const { store, name } = this.registerOptions;
     const accessorModule = this.buildThisProxy({
       ...store,
@@ -184,7 +186,7 @@ export class VuexClassModuleFactory {
       excludeLocalFunctions: true
     });
 
-    Object.setPrototypeOf(accessorModule, Object.getPrototypeOf(instance));
+    Object.setPrototypeOf(accessorModule, Object.getPrototypeOf(this.instance));
     Object.freeze(accessorModule);
 
     return accessorModule;
