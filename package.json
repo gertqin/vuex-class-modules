@@ -1,6 +1,6 @@
 {
   "name": "vuex-class-modules",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Typescript class decorators for class-style vuex modules.",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
