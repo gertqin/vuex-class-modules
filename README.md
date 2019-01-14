@@ -143,6 +143,28 @@ The local modules will not be part of the state and cannot be accessed from the 
 myModule.otherModule // -> undefined
 ```
 
+### The watch function
+
+Vuex can also be used ouside of vue modules. To listen for changes to the state, vuex provides a [watch method](https://vuex.vuejs.org/api/#watch).
+
+This api is also provided by vuex-class-modules under the method name `$watch` to prevent name collisions. For example you can do:
+
+```ts
+import store from "./store";
+import { MyModule } from "./my-module";
+
+const myModule = new MyModule({ store, name: "MyModule" });
+myModule.$watch(
+  theModule => theModule.fullName,
+  (newName: string, oldName: string) => {
+    // ...
+  }, {
+    deep: false,
+    immediate: false
+  }
+);
+```
+
 ### Register options
 * `name` [required]: Name of the module
 * `store` [required]: The vuex store - which can just be instantiated as empty:

@@ -1,4 +1,5 @@
 import { Store, Module as StoreModule, GetterTree, ActionContext, Dispatch, Commit } from "vuex";
+import { WatchOptions } from "vue";
 import { VuexModule } from "./VuexModule";
 
 export interface ModuleOptions {
@@ -185,6 +186,19 @@ export class VuexClassModuleFactory {
       excludeModuleRefs: true,
       excludeLocalFunctions: true
     });
+
+    // watch API
+    accessorModule.$watch = (
+      fn: (arg: VuexModule) => any,
+      callback: (newValue: any, oldValue: any) => void,
+      options?: WatchOptions
+    ) => {
+      store.watch(
+        (state: any, getters: any) => fn(this.buildThisProxy({ state, getters, useNamespaceKey: true })),
+        callback,
+        options
+      );
+    };
 
     Object.setPrototypeOf(accessorModule, Object.getPrototypeOf(this.instance));
     Object.freeze(accessorModule);

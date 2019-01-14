@@ -3,7 +3,10 @@
     "tslint:recommended",
     "tslint-config-prettier"
   ],
+  "rulesDirectory": ["tslint-plugin-prettier"],
   "rules": {
+    "prettier": [true, { "printWidth": 120 }],
+
     "no-namespace": false,
     "max-line-length": false,
     "interface-name": false,

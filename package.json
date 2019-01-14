@@ -11,7 +11,7 @@
   "scripts": {
     "test": "jest --config jestconfig.json",
     "build": "tsc",
-    "lint": "tslint -p tsconfig.json",
+    "lint": "tslint -p tsconfig.json --fix",
     "example": "npm run build && webpack --config ./example/webpack.config.js",
     "prepare": "npm run build",
     "prepublishOnly": "npm test && npm run lint",
@@ -45,12 +45,13 @@
     "ts-loader": "^5.3.0",
     "tslint": "^5.11.0",
     "tslint-config-prettier": "^1.16.0",
+    "tslint-plugin-prettier": "^2.0.1",
     "typescript": "^3.1.6",
     "vue": "^2.5.17",
     "vue-class-component": "^6.3.2",
     "vue-loader": "^15.4.2",
     "vue-template-compiler": "^2.5.17",
-    "vuex": "^3.0.1",
+    "vuex": "git+https://github.com/vuejs/vuex.git#82b3caf1458d9a7e714634a2ac0050bd52b2ff97",
     "webpack": "^4.26.0",
     "webpack-cli": "^3.1.2"
   }
