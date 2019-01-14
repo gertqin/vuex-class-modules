@@ -30,10 +30,7 @@ describe("watch", () => {
   test("watch callback is called", async () => {
     const watchCallback = jest.fn((newValue: string, oldValue: string) => undefined);
 
-    myModule.$watch(
-      theModule => theModule.getText,
-      watchCallback
-    );
+    myModule.$watch(theModule => theModule.getText, watchCallback);
     await myModule.changeText("foo");
 
     expect(watchCallback.mock.calls.length).toBe(1);

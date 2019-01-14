@@ -143,7 +143,7 @@ The local modules will not be part of the state and cannot be accessed from the 
 myModule.otherModule // -> undefined
 ```
 
-### The watch function
+### The `store.watch` function
 
 Vuex can also be used ouside of vue modules. To listen for changes to the state, vuex provides a [watch method](https://vuex.vuejs.org/api/#watch).
 
