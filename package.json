@@ -51,7 +51,7 @@
     "vue-class-component": "^6.3.2",
     "vue-loader": "^15.4.2",
     "vue-template-compiler": "^2.5.17",
-    "vuex": "git+https://github.com/vuejs/vuex.git#82b3caf1458d9a7e714634a2ac0050bd52b2ff97",
+    "vuex": "^3.1.0",
     "webpack": "^4.26.0",
     "webpack-cli": "^3.1.2"
   }
