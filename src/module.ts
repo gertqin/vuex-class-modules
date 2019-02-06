@@ -16,13 +16,15 @@ function moduleDecoratorFactory(moduleOptions?: ModuleOptions) {
   return <TFunction extends Function>(constructor: TFunction): TFunction => {
     const accessor: any = function(...args: any[]) {
       const instance = new constructor.prototype.constructor(...args) as IVuexModule;
+      Object.setPrototypeOf(instance, accessor.prototype);
 
       const factory = new VuexClassModuleFactory(constructor, instance, moduleOptions || {});
 
       factory.registerVuexModule();
       return factory.buildAccessor();
     };
-    accessor.prototype = constructor.prototype;
+    accessor.prototype = Object.create(constructor.prototype);
+    accessor.prototype.constructor = accessor;
     return accessor;
   };
 }
