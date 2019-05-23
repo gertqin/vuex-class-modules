@@ -194,7 +194,7 @@ export class VuexClassModuleFactory {
       options?: WatchOptions
     ) => {
       store.watch(
-        (state: any, getters: any) => fn(this.buildThisProxy({ state, getters, useNamespaceKey: true })),
+        (state: any, getters: any) => fn(this.buildThisProxy({ state: state[name], getters, useNamespaceKey: true })),
         callback,
         options
       );
