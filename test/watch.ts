@@ -30,12 +30,26 @@ describe("watch", () => {
   test("watch callback is called", async () => {
     const watchCallback = jest.fn((newValue: string, oldValue: string) => undefined);
 
+    myModule.setText("bar")
     myModule.$watch(theModule => theModule.getText, watchCallback);
     await myModule.changeText("foo");
 
     expect(watchCallback.mock.calls.length).toBe(1);
     expect(watchCallback.mock.calls[0].length).toBe(2);
     expect(watchCallback.mock.calls[0][0]).toBe("foo");
-    expect(watchCallback.mock.calls[0][1]).toBe("");
+    expect(watchCallback.mock.calls[0][1]).toBe("bar");
+  });
+
+  test("watch for state changes as well", async () => {
+    const watchCallback = jest.fn((newValue: string, oldValue: string) => undefined);
+
+    myModule.setText("bar")
+    myModule.$watch(theModule => theModule.text, watchCallback);
+    await myModule.changeText("foo");
+
+    expect(watchCallback.mock.calls.length).toBe(1);
+    expect(watchCallback.mock.calls[0].length).toBe(2);
+    expect(watchCallback.mock.calls[0][0]).toBe("foo");
+    expect(watchCallback.mock.calls[0][1]).toBe("bar");
   });
 });
