@@ -33,4 +33,11 @@ test("generate-mutations", async () => {
   const secondMutation = mutationObserver.mock.results[1].value as MutationPayload;
   expect(secondMutation.type).toBe("myModule/set__text");
   expect(secondMutation.payload).toBe("some text");
+
+  // change state directly using generated mutation
+  myModule.text = "some other text";
+
+  const thirdMutation = mutationObserver.mock.results[2].value as MutationPayload;
+  expect(thirdMutation.type).toBe("myModule/set__text");
+  expect(thirdMutation.payload).toBe("some other text");
 });

@@ -179,9 +179,17 @@ export class VuexClassModuleFactory {
 
   buildAccessor() {
     const { store, name } = this.registerOptions;
+
+    const stateSetter = this.moduleOptions.generateMutationSetters
+      ? (field: string, val: any) => {
+          store.commit(`${name}/${this.getMutationSetterName(field)}`, val);
+        }
+      : undefined;
+
     const accessorModule = this.buildThisProxy({
       ...store,
       state: store.state[name],
+      stateSetter,
       useNamespaceKey: true,
       excludeModuleRefs: true,
       excludeLocalFunctions: true
