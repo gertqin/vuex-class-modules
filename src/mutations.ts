@@ -1,6 +1,10 @@
 import { ModulePrototype } from "./module-factory";
 
-export function Mutation<T>(target: T, key: string | symbol, descriptor: TypedPropertyDescriptor<(arg?: any) => void>) {
+export function Mutation<T extends Object>(
+  target: T,
+  key: string | symbol,
+  descriptor: TypedPropertyDescriptor<(arg?: any) => void>
+) {
   const vuexModule = target.constructor as ModulePrototype;
   if (!vuexModule.__mutations) {
     vuexModule.__mutations = {};
