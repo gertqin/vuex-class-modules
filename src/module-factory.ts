@@ -68,7 +68,7 @@ export class VuexClassModuleFactory {
     // state
     for (const key of Object.keys(this.instance)) {
       const val = this.instance[key];
-      if (key !== "__options" && this.instance.hasOwnProperty(key) && typeof val !== "function") {
+      if (key !== "__options" && this.instance.hasOwnProperty(key)) {
         if (val instanceof VuexModule) {
           this.definition.moduleRefs[key] = val;
         } else {
