@@ -1,7 +1,7 @@
 import { VuexClassModuleFactory, ModuleOptions, IVuexModule } from "./module-factory";
 import { VuexModule } from "./VuexModule";
 
-type VuexModuleClass = { new (...args: any[]): VuexModule };
+type VuexModuleClass = new (...args: any[]) => VuexModule;
 export function Module<T extends VuexModuleClass>(target: T): T;
 export function Module(options?: ModuleOptions): ClassDecorator;
 export function Module<T extends VuexModuleClass>(arg?: ModuleOptions | T): ClassDecorator | T {
