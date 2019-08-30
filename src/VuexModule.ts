@@ -7,5 +7,7 @@ export class VuexModule {
     this.__options = options;
   }
 
-  $watch<T>(fn: (arg: this) => T, callback: (newValue: T, oldValue: T) => void, options?: WatchOptions) {}
+  $watch<T>(fn: (arg: this) => T, callback: (newValue: T, oldValue: T) => void, options?: WatchOptions): Function {
+    return function() {};
+  }
 }
