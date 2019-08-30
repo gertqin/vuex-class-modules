@@ -201,7 +201,7 @@ export class VuexClassModuleFactory {
       callback: (newValue: any, oldValue: any) => void,
       options?: WatchOptions
     ) => {
-      store.watch(
+      return store.watch(
         (state: any, getters: any) => fn(this.buildThisProxy({ state: state[name], getters, useNamespaceKey: true })),
         callback,
         options
