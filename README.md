@@ -1,14 +1,17 @@
 # vuex-class-modules
+
 This is yet another package to introduce a simple type-safe class style syntax for your vuex modules, inspired by [vue-class-component](https://github.com/vuejs/vue-class-component).
 
 [![npm](https://img.shields.io/npm/v/vuex-class-modules.svg)](https://www.npmjs.com/package/vuex-class-modules)
 
 ## Installation
+
 `npm install vuex-class-modules`
 
 And make sure to have the `--experimentalDecorators` flag enabled.
 
 ## Usage
+
 Vuex modules can be written using decorators as a class:
 
 ```typescript
@@ -18,36 +21,36 @@ import { VuexModule, Module, Mutation, Action } from "vuex-class-modules";
 @Module
 class UserModule extends VuexModule {
   // state
-  firstName = "Foo"
-  lastName = "Bar"
+  firstName = "Foo";
+  lastName = "Bar";
 
   // getters
   get fullName() {
-    return this.firstName + " " + this.lastName
+    return this.firstName + " " + this.lastName;
   }
 
   // mutations
   @Mutation
   setFirstName(firstName: string) {
-    this.firstName = firstName
+    this.firstName = firstName;
   }
   @Mutation
   setLastName(lastName: string) {
-    this.lastName = lastName
+    this.lastName = lastName;
   }
 
   // actions
   @Action
   async loadUser() {
-    const user = await fetchUser()
-    this.setFirstName(user.firstName)
-    this.setLastName(user.lastName)
+    const user = await fetchUser();
+    this.setFirstName(user.firstName);
+    this.setLastName(user.lastName);
   }
 }
 
 // register module (could be in any file)
-import store from "path/to/store"
-export const userModule = new UserModule({ store, name: "user" })
+import store from "path/to/store";
+export const userModule = new UserModule({ store, name: "user" });
 ```
 
 The module will automatically be registered to the store as a namespaced dynamic module when it is instantiated. (The modules are namespaced to avoid name conflicts between modules for getters/mutations/actions.)
@@ -57,18 +60,18 @@ The module can then be used in vue components as follows:
 ```ts
 // MyComponent.vue
 import Vue from "vue";
-import { userModule } from "path/to/user-module.ts"
+import { userModule } from "path/to/user-module.ts";
 
 export class MyComponent extends Vue {
   get firstName() {
-    return userModule.firstName // -> store.state.user.firstName
+    return userModule.firstName; // -> store.state.user.firstName
   }
   get fullName() {
-    return userModule.fullName // -> store.getters["user/fullName]
+    return userModule.fullName; // -> store.getters["user/fullName]
   }
 
   created() {
-    userModule.setFirstName("Foo") // -> store.commit("user/setFirstName", "Foo")
+    userModule.setFirstName("Foo"); // -> store.commit("user/setFirstName", "Foo")
     userModule.loadUser(); // -> store.dispatch("user/loadUser")
   }
 }
@@ -89,12 +92,12 @@ import { otherModule } from "./other-module";
 @Module
 class MyModule extends VuexModule {
   get myGetter() {
-    return otherModule.foo
+    return otherModule.foo;
   }
 
   @Action
   async myAction() {
-    await otherModule.someAction()
+    await otherModule.someAction();
     // ...
   }
 }
@@ -110,37 +113,37 @@ import { OtherModule } from "./other-module";
 
 @Module
 export class MyModule extends VuexModule {
-  private otherModule: OtherModule
+  private otherModule: OtherModule;
 
   constructor(otherModule: OtherModule, options: RegisterOptions) {
-    super(options)
-    this.otherModule = otherModule
+    super(options);
+    this.otherModule = otherModule;
   }
 
   get myGetter() {
-    return this.otherModule.foo
+    return this.otherModule.foo;
   }
 
   @Action
   async myAction() {
-    await this.otherModule.someAction()
+    await this.otherModule.someAction();
     // ...
   }
 }
 
 // register-modules.ts
 import store from "path/to/store";
-import { OtherModule } from "path/to/other-module"
-import { MyModule } from "path/to/my-module"
+import { OtherModule } from "path/to/other-module";
+import { MyModule } from "path/to/my-module";
 
-export const otherModule = new OtherModule({ store, name: "otherModule" })
-export const myModule = new MyModule(otherModule, { store, name: "myModule" })
+export const otherModule = new OtherModule({ store, name: "otherModule" });
+export const myModule = new MyModule(otherModule, { store, name: "myModule" });
 ```
 
 The local modules will not be part of the state and cannot be accessed from the outside, so they should always be declared private.
 
 ```ts
-myModule.otherModule // -> undefined
+myModule.otherModule; // -> undefined
 ```
 
 ### The `store.watch` function
@@ -158,73 +161,93 @@ myModule.$watch(
   theModule => theModule.fullName,
   (newName: string, oldName: string) => {
     // ...
-  }, {
+  },
+  {
     deep: false,
     immediate: false
   }
 );
 ```
 
+and to unwatch:
+
+```ts
+const unwatch = myModule.$watch(...);
+unwatch();
+```
+
 ### Register options
-* `name` [required]: Name of the module
-* `store` [required]: The vuex store - which can just be instantiated as empty:
+
+- `name` [required]: Name of the module
+- `store` [required]: The vuex store - which can just be instantiated as empty:
+
 ```ts
 // store.ts
-import Vue from "vue"
-import Vuex from "vuex"
-Vue.use(Vuex)
-const store = new Vuex.Store({})
+import Vue from "vue";
+import Vuex from "vuex";
+Vue.use(Vuex);
+const store = new Vuex.Store({});
 ```
 
 ### Module options
 
 The module decorator can also accept options:
-* `generateMutationSetters` [optional, default=false]: Whether automatic mutation setters for the state properties should be generated, see [Generate Mutation Setters](#generate-mutation-setters).
+
+- `generateMutationSetters` [optional, default=false]: Whether automatic mutation setters for the state properties should be generated, see [Generate Mutation Setters](#generate-mutation-setters).
 
 ## Example
+
 The vuex shopping cart example rewritten using `vue-class-component` and `vuex-class-modules` can be found in the [example directory](/example). Build the example using:
 
 `npm run example`
 
 ## Caveats of `this`
+
 As for vue-class-component `this` inside the module is just a proxy object to the store. It can therefore only access what the corresponding vuex module function would be able to access:
 
 ```ts
 @Module
 class MyModule extends VuexModule {
-  foo = "bar"
+  foo = "bar";
 
-  get someGetter() { return 123 }
+  get someGetter() {
+    return 123;
+  }
   get myGetter() {
-    this.foo // -> "bar"
-    this.someGetter // -> 123
-    this.someMutation() // undefined, getters cannot call mutations
-    this.someAction() // -> undefined, getters cannot call actions
+    this.foo; // -> "bar"
+    this.someGetter; // -> 123
+    this.someMutation(); // undefined, getters cannot call mutations
+    this.someAction(); // -> undefined, getters cannot call actions
   }
 
   @Mutation
-  someMutation() { /* ... */ }
+  someMutation() {
+    /* ... */
+  }
   @Mutation
   myMutation() {
-    this.foo // -> "bar"
-    this.someGetter // -> undefined, mutations dont have access to getters 
-    this.someMutation() // -> undefined, mutations cannot call other mutations
-    this.someAction() // -> undefined, mutations cannot call actions
+    this.foo; // -> "bar"
+    this.someGetter; // -> undefined, mutations dont have access to getters
+    this.someMutation(); // -> undefined, mutations cannot call other mutations
+    this.someAction(); // -> undefined, mutations cannot call actions
   }
 
   @Action
-  async someAction() { /* ... */ }
+  async someAction() {
+    /* ... */
+  }
   @Action
   async myAction() {
-    this.foo // -> "bar"
-    this.someGetter // -> 123
-    this.myMutation() // Ok
-    await this.someAction() // Ok
+    this.foo; // -> "bar"
+    this.someGetter; // -> 123
+    this.myMutation(); // Ok
+    await this.someAction(); // Ok
   }
 }
 ```
 
 ## Local Functions
+
 The module can have non-mutation/action functions which can be used inside the module. As for local modules, these functions will not be exposed outside the module and should therefore be private. `this` will be passed on to the local function from the getter/mutation/action.
 
 ```ts
@@ -250,6 +273,7 @@ myModule.myMutationHelper // -> undefined.
 ```
 
 ## Generate Mutation Setters
+
 As I often find myself writing a lot of simple setter mutations like
 
 ```ts
@@ -290,7 +314,7 @@ class UserModule extends VuexModule {
 }
 ```
 
-_NOTE:_ Setters are only generated for root-level state properties, so in order to update a property of an object you have to use a mutation or replace the entire object: 
+_NOTE:_ Setters are only generated for root-level state properties, so in order to update a property of an object you have to use a mutation or replace the entire object:
 
 ```ts
 @Module({ generateMutationSetters: true })
@@ -300,7 +324,7 @@ class UserModule extends VuexModule {
     name: "Foo"
   };
 
-  @Mutation 
+  @Mutation
   setUserName() {
     this.user.name = "Bar"; // OK!
   }
