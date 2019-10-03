@@ -84,23 +84,25 @@ export class VuexClassModuleFactory {
     const actionKeys = Object.keys(this.definition.mutations);
     const mutationKeys = Object.keys(this.definition.actions);
 
-    for (const key of Object.getOwnPropertyNames(classModule.prototype)) {
-      const descriptor = Object.getOwnPropertyDescriptor(classModule.prototype, key) as PropertyDescriptor;
+    for (const module of getModulePrototypes(classModule)) {
+      for (const key of Object.getOwnPropertyNames(module.prototype)) {
+        const descriptor = Object.getOwnPropertyDescriptor(module.prototype, key) as PropertyDescriptor;
 
-      const isGetter = !!descriptor.get;
-      if (isGetter) {
-        this.definition.getters[key] = descriptor.get!;
-      }
+        const isGetter = !!descriptor.get;
+        if (isGetter) {
+          this.definition.getters[key] = descriptor.get!;
+        }
 
-      const isHelperFunction =
-        descriptor.value &&
-        typeof classModule.prototype[key] === "function" &&
-        actionKeys.indexOf(key) === -1 &&
-        mutationKeys.indexOf(key) === -1 &&
-        key !== "constructor";
+        const isHelperFunction =
+            descriptor.value &&
+            typeof module.prototype[key] === "function" &&
+            actionKeys.indexOf(key) === -1 &&
+            mutationKeys.indexOf(key) === -1 &&
+            key !== "constructor";
 
-      if (isHelperFunction) {
-        this.definition.localFunctions[key] = classModule.prototype[key];
+        if (isHelperFunction) {
+          this.definition.localFunctions[key] = module.prototype[key];
+        }
       }
     }
   }
@@ -283,4 +285,14 @@ function mapValuesToProperty<S, V>(
       set: set ? (val: string) => set(key, val) : undefined
     });
   }
+}
+
+function getModulePrototypes(module: ModulePrototype): ModulePrototype[] {
+  const prototypes: ModulePrototype[] = [];
+
+  for (let prototype = module; prototype && prototype !== VuexModule; prototype = Object.getPrototypeOf(prototype)) {
+    prototypes.push(prototype);
+  }
+
+  return prototypes;
 }
