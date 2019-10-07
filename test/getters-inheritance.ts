@@ -29,7 +29,7 @@ class MyModule extends ParentModule {
   //
 }
 
-describe.only("getters-inheritance", () => {
+describe("getters-inheritance", () => {
   let store: Store<any>;
   let myModule: MyModule;
 
