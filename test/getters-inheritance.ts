@@ -7,7 +7,7 @@ Vue.use(Vuex);
 class ParentModule extends VuexModule {
   foo = "bar";
 
-  get textTransforms() {
+  get bigFoo() {
     return this.foo.toUpperCase();
   }
 
@@ -18,7 +18,7 @@ class ParentModule extends VuexModule {
 
   @Action
   myAction() {
-    if (this.textTransforms === "BAR") {
+    if (this.bigFoo === "BAR") {
       this.myMutation("ok");
     }
   }
@@ -39,13 +39,13 @@ describe("getters-inheritance", () => {
   });
 
   test("allows the use of getters from an inheriting class", () => {
-    expect(myModule.textTransforms).toBe("BAR");
-    expect(myModule.textTransforms).toBe(store.getters["myModule/textTransforms"]);
+    expect(myModule.bigFoo).toBe("BAR");
+    expect(myModule.bigFoo).toBe(store.getters["myModule/bigFoo"]);
   });
 
   test("allows the use of getters in inherited class", () => {
     myModule.myAction();
-    expect(myModule.textTransforms).toBe("OK");
-    expect(myModule.textTransforms).toBe(store.getters["myModule/textTransforms"]);
+    expect(myModule.bigFoo).toBe("OK");
+    expect(myModule.bigFoo).toBe(store.getters["myModule/bigFoo"]);
   });
 });
