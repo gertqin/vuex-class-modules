@@ -16,6 +16,11 @@ class ParentModule extends VuexModule {
   mutation2(value: string) {
     //
   }
+
+  @Mutation
+  mutation3(value: string) {
+    this.foo = value;
+  }
 }
 
 @Module
@@ -30,6 +35,12 @@ class MyModule extends ParentModule {
   @Mutation
   mutation2(value: string) {
     this.foo = value;
+  }
+
+  @Mutation
+  mutation3(value: string) {
+    super.mutation3(value);
+    this.foo = this.foo + "child";
   }
 }
 
@@ -50,5 +61,10 @@ describe("mutations-inheritance", () => {
   test("overriden mutation can modify parent state", () => {
     myModule.mutation2("bar");
     expect(myModule.foo).toBe("bar");
+  });
+
+  test("overriden mutation has access to parent method implementation", () => {
+    myModule.mutation3("bar");
+    expect(myModule.foo).toBe("barchild");
   });
 });

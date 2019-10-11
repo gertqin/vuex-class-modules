@@ -35,10 +35,17 @@ class ParentModule extends VuexModule {
   action4() {
     //
   }
+
+  @Action
+  action5() {
+    this.updateFoo(this.foo + "action5");
+  }
 }
 
 @Module
 class MyModule extends ParentModule {
+  bar: string = "";
+
   get doubledFoo() {
     return this.foo + this.foo;
   }
@@ -66,6 +73,12 @@ class MyModule extends ParentModule {
   @Action
   action4() {
     this.updateFoo(this.bigFoo);
+  }
+
+  @Action
+  action5() {
+    super.action5();
+    this.updateFoo(this.foo + "child");
   }
 }
 
@@ -96,5 +109,10 @@ describe("actions-inheritance", () => {
   test("overriden action has access to parent getters", () => {
     myModule.action4();
     expect(myModule.foo).toBe("INIT");
+  });
+
+  test("overriden action has access to parent method implementation", () => {
+    myModule.action5();
+    expect(myModule.foo).toBe("initaction5child");
   });
 });
