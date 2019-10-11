@@ -94,11 +94,11 @@ export class VuexClassModuleFactory {
         }
 
         const isHelperFunction =
-            descriptor.value &&
-            typeof module.prototype[key] === "function" &&
-            actionKeys.indexOf(key) === -1 &&
-            mutationKeys.indexOf(key) === -1 &&
-            key !== "constructor";
+          descriptor.value &&
+          typeof module.prototype[key] === "function" &&
+          actionKeys.indexOf(key) === -1 &&
+          mutationKeys.indexOf(key) === -1 &&
+          key !== "constructor";
 
         if (isHelperFunction) {
           this.definition.localFunctions[key] = module.prototype[key];
