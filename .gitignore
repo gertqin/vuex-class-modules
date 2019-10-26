@@ -1,5 +1,4 @@
 node_modules
-/dist
 /lib
 /example/build.js
 /example/build.js.map

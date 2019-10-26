@@ -5,12 +5,11 @@
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "files": [
-    "dist",
     "lib"
   ],
   "scripts": {
     "test": "jest --config jestconfig.json",
-    "build": "rollup -c rollup.config.js; tsc --emitDeclarationOnly",
+    "build": "rollup -c rollup.config.js",
     "lint": "tslint -p tsconfig.json --fix",
     "example": "npm run build && webpack --config ./example/webpack.config.js",
     "prepare": "npm run build",
@@ -45,7 +44,7 @@
     "rollup-plugin-commonjs": "^10.1.0",
     "rollup-plugin-node-resolve": "^5.2.0",
     "rollup-plugin-terser": "^1.0.1",
-    "rollup-plugin-typescript": "^1.0.1",
+    "rollup-plugin-typescript2": "^0.24.3",
     "ts-jest": "^24.1.0",
     "ts-loader": "^6.2.0",
     "tslib": "^1.10.0",
