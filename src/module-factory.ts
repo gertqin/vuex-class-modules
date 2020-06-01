@@ -17,6 +17,7 @@ export interface IVuexModule extends Dictionary<any> {
 export interface IModulePrototype {
   __mutations?: Dictionary<(payload?: any) => void>;
   __actions?: Dictionary<(payload?: any) => Promise<void>>;
+  __onload?: Dictionary<(payload?: any) => Promise<void>>; // ADDED __onload
 }
 export type ModulePrototype = IModulePrototype & Function;
 
@@ -28,6 +29,10 @@ interface ModuleDefinition {
   getters: Dictionary<() => void>;
   mutations: Dictionary<(payload?: any) => void>;
   actions: Dictionary<(payload?: any) => Promise<void>>;
+
+  // added onload to module definition
+  onload: Dictionary<(payload?: any) => Promise<void>>;
+
   localFunctions: Dictionary<(...args: any[]) => any>;
 }
 interface StoreProxyDefinition {
@@ -54,6 +59,7 @@ export class VuexClassModuleFactory {
     getters: {},
     mutations: {},
     actions: {},
+    onload: {}, // Added onload to module definition
     localFunctions: {}
   };
 
@@ -152,8 +158,8 @@ export class VuexClassModuleFactory {
           ...context,
           stateSetter: this.moduleOptions.generateMutationSetters
             ? (field: string, val: any) => {
-                context.commit(this.getMutationSetterName(field), val);
-              }
+              context.commit(this.getMutationSetterName(field), val);
+            }
             : undefined
         };
         const thisObj = this.buildThisProxy(proxyDefinition);
@@ -184,8 +190,8 @@ export class VuexClassModuleFactory {
 
     const stateSetter = this.moduleOptions.generateMutationSetters
       ? (field: string, val: any) => {
-          store.commit(`${name}/${this.getMutationSetterName(field)}`, val);
-        }
+        store.commit(`${name}/${this.getMutationSetterName(field)}`, val);
+      }
       : undefined;
 
     const accessorModule = this.buildThisProxy({
@@ -213,6 +219,11 @@ export class VuexClassModuleFactory {
     Object.setPrototypeOf(accessorModule, Object.getPrototypeOf(this.instance));
     Object.freeze(accessorModule);
 
+    // CALL ALL METHODS MARKED AS @ONLOAD
+    for (let func in accessorModule.onload) {
+      accessorModule.onload[func]();
+    }
+
     return accessorModule;
   }
 
@@ -227,8 +238,8 @@ export class VuexClassModuleFactory {
         proxyDefinition.stateSetter
           ? (key, val) => proxyDefinition.stateSetter!(key, val)
           : () => {
-              throw Error("[vuex-class-module]: Cannot modify state outside mutations.");
-            }
+            throw Error("[vuex-class-module]: Cannot modify state outside mutations.");
+          }
       );
     }
     if (!proxyDefinition.excludeModuleRefs) {
@@ -251,6 +262,16 @@ export class VuexClassModuleFactory {
       mapValues(obj, this.definition.actions, (action, key) => {
         return (payload?: any) => proxyDefinition.dispatch!(`${namespaceKey}${key}`, payload);
       });
+
+      // Check if onload methods exist for module 
+      if (this.definition.onload) {
+        // if so, add onload object
+        obj.onload = {};
+        // map onload methods to obj.onload object
+        mapValues(obj.onload, this.definition.onload, (action, key) => {
+          return (payload?: any) => proxyDefinition.dispatch!(`${namespaceKey}${key}`, payload);
+        });
+      }
     }
 
     if (!proxyDefinition.excludeLocalFunctions) {
