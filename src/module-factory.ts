@@ -86,6 +86,9 @@ export class VuexClassModuleFactory {
     this.definition.mutations = classModule.__mutations || {};
     this.definition.actions = classModule.__actions || {};
 
+    // ADDED onload definition value
+    this.definition.onload = classModule.__onload || {};
+
     // getters & helper functions
     const actionKeys = Object.keys(this.definition.mutations);
     const mutationKeys = Object.keys(this.definition.actions);
