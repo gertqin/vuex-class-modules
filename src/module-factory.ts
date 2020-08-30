@@ -77,12 +77,10 @@ export class VuexClassModuleFactory {
       }
     }
 
-    this.definition.mutations = classModule.__mutations || {};
-    this.definition.actions = classModule.__actions || {};
-
-    // getters & helper functions
-    const actionKeys = Object.keys(this.definition.mutations);
-    const mutationKeys = Object.keys(this.definition.actions);
+    const actionKeys = Object.keys(classModule.__actions || {});
+    const mutationKeys = Object.keys(classModule.__mutations || {});
+    const isAction = (key: string) => actionKeys.indexOf(key) !== -1;
+    const isMutation = (key: string) => mutationKeys.indexOf(key) !== -1;
 
     for (const module of getModulePrototypes(classModule)) {
       for (const key of Object.getOwnPropertyNames(module.prototype)) {
@@ -93,11 +91,18 @@ export class VuexClassModuleFactory {
           this.definition.getters[key] = descriptor.get!;
         }
 
+        if (isAction(key) && !(key in this.definition.actions) && descriptor.value) {
+          this.definition.actions[key] = module.prototype[key];
+        }
+        if (isMutation(key) && !(key in this.definition.mutations) && descriptor.value) {
+          this.definition.mutations[key] = module.prototype[key];
+        }
+
         const isHelperFunction =
           descriptor.value &&
           typeof module.prototype[key] === "function" &&
-          actionKeys.indexOf(key) === -1 &&
-          mutationKeys.indexOf(key) === -1 &&
+          !isAction(key) &&
+          !isMutation(key) &&
           key !== "constructor";
 
         if (isHelperFunction) {
