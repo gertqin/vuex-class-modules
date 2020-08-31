@@ -87,7 +87,7 @@ export class VuexClassModuleFactory {
         const descriptor = Object.getOwnPropertyDescriptor(module.prototype, key) as PropertyDescriptor;
 
         const isGetter = !!descriptor.get;
-        if (isGetter) {
+        if (isGetter && !(key in this.definition.getters)) {
           this.definition.getters[key] = descriptor.get!;
         }
 
@@ -105,7 +105,7 @@ export class VuexClassModuleFactory {
           !isMutation(key) &&
           key !== "constructor";
 
-        if (isHelperFunction) {
+        if (isHelperFunction && !(key in this.definition.localFunctions)) {
           this.definition.localFunctions[key] = module.prototype[key];
         }
       }
