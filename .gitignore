@@ -1,4 +1,5 @@
 node_modules
 /lib
+/commonjs
 /example/build.js
 /example/build.js.map

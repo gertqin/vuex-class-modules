@@ -2,7 +2,14 @@
   "name": "vuex-class-modules",
   "version": "1.1.3",
   "description": "Typescript class decorators for class-style vuex modules.",
-  "main": "lib/index.js",
+  "main": "commonjs/index.js",
+  "module": "lib/index.js",
+  "exports": {
+    ".": {
+      "require":  "./commonjs/index.js",
+      "default": "./lib/index.js"
+    }
+  },
   "types": "lib/index.d.ts",
   "files": [
     "dist",
@@ -10,7 +17,9 @@
   ],
   "scripts": {
     "test": "jest --config jestconfig.json",
-    "build": "tsc",
+    "build": "npm run build:es2015 && npm run build:commonjs",
+    "build:es2015": "tsc",
+    "build:commonjs": "tsc -m commonjs --outDir ./commonjs",
     "lint": "tslint -p tsconfig.json --fix",
     "example": "npm run build && webpack --config ./example/webpack.config.js",
     "prepare": "npm run build",
