@@ -6,14 +6,14 @@
   "module": "lib/index.js",
   "exports": {
     ".": {
-      "require":  "./commonjs/index.js",
+      "require": "./commonjs/index.js",
       "default": "./lib/index.js"
     }
   },
   "types": "lib/index.d.ts",
   "files": [
-    "dist",
-    "lib"
+    "lib",
+    "commonjs"
   ],
   "scripts": {
     "test": "jest --config jestconfig.json",
@@ -56,7 +56,7 @@
     "tslint": "^5.20.0",
     "tslint-config-prettier": "^1.18.0",
     "tslint-plugin-prettier": "^2.0.1",
-    "typescript": "^3.6.4",
+    "typescript": "^3.8.4",
     "vue": "^2.6.10",
     "vue-class-component": "^7.1.0",
     "vue-loader": "^15.7.0",

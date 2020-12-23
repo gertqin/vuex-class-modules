@@ -10,7 +10,7 @@ This is yet another package to introduce a simple type-safe class style syntax f
 
 And make sure to have the `--experimentalDecorators` flag enabled.
 
-Both a `commonjs` and a `esm` module build is published. If you have a webpack-based setup, it will use the `esm` modules by default.
+Both a `commonjs` and a `esm` module build are published. If you have a webpack-based setup, it will use the `esm` modules by default.
 
 ## Usage
 
@@ -160,13 +160,13 @@ import { MyModule } from "./my-module";
 
 const myModule = new MyModule({ store, name: "MyModule" });
 myModule.$watch(
-  theModule => theModule.fullName,
+  (theModule) => theModule.fullName,
   (newName: string, oldName: string) => {
     // ...
   },
   {
     deep: false,
-    immediate: false
+    immediate: false,
   }
 );
 ```
@@ -323,7 +323,7 @@ _NOTE:_ Setters are only generated for root-level state properties, so in order 
 class UserModule extends VuexModule {
   user = {
     id: 123,
-    name: "Foo"
+    name: "Foo",
   };
 
   @Mutation
