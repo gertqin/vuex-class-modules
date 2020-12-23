@@ -10,6 +10,8 @@ This is yet another package to introduce a simple type-safe class style syntax f
 
 And make sure to have the `--experimentalDecorators` flag enabled.
 
+Both a `commonjs` and a `esm` module build is published. If you have a webpack-based setup, it will use the `esm` modules by default.
+
 ## Usage
 
 Vuex modules can be written using decorators as a class:
