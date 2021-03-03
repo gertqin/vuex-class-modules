@@ -1,16 +1,16 @@
 {
   "compilerOptions": {
     "target": "es5",
-    "module": "es2015",
+    "module": "esnext",
     "moduleResolution": "node",
     "lib": [
       "dom",
-      "es2015"
+      "esnext"
     ],
     "declaration": true,
     "outDir": "./lib",
     "strict": true,
-
+    "types": ["node", "vite/client", "@types/webpack-env"],
     "experimentalDecorators": true
   },
   "include": ["src"],

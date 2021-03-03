@@ -170,7 +170,7 @@ export class VuexClassModuleFactory {
     // register module
     const { store, name } = this.registerOptions;
     if (store.state[name]) {
-      if (module.hot) {
+      if (module.hot || import.meta?.hot) {
         store.hotUpdate({
           modules: {
             [name]: vuexModule
