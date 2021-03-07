@@ -3,6 +3,9 @@ import { WatchOptions } from "vue";
 
 export class VuexModule {
   private __options: RegisterOptions;
+
+  static __useHotUpdate: boolean = false;
+
   constructor(options: RegisterOptions) {
     this.__options = options;
   }

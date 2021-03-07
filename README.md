@@ -339,6 +339,20 @@ class UserModule extends VuexModule {
 }
 ```
 
+## Vite HMR
+
+[Vite](https://vitejs.dev/) (and possibly other bundlers) uses `import.meta.hot` for HMR, which `vuex-class-modules` doesn't support currently. Instead a static property
+
+```ts
+VuexModule.__useHotUpdate = true; // default false
+```
+
+is provided, which will force hot updates to the store instead of throwing an error when a module with a duplicate name is registered. This could for instance be set only in dev mode
+
+```ts
+VuexModule.__useHotUpdate = import.meta.env.DEV;
+```
+
 ## License
 
 [MIT](http://opensource.org/licenses/MIT)

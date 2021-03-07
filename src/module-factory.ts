@@ -170,7 +170,7 @@ export class VuexClassModuleFactory {
     // register module
     const { store, name } = this.registerOptions;
     if (store.state[name]) {
-      if (module.hot) {
+      if (VuexModule.__useHotUpdate || (typeof module !== "undefined" && module.hot)) {
         store.hotUpdate({
           modules: {
             [name]: vuexModule
@@ -209,7 +209,14 @@ export class VuexClassModuleFactory {
       options?: WatchOptions
     ) => {
       return store.watch(
-        (state: any, getters: any) => fn(this.buildThisProxy({ state: state[name], getters, useNamespaceKey: true })),
+        (state: any, getters: any) =>
+          fn(
+            this.buildThisProxy({
+              state: state[name],
+              getters,
+              useNamespaceKey: true
+            })
+          ),
         callback,
         options
       );
