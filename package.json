@@ -1,6 +1,6 @@
 {
   "name": "@skryu/vuex-class-modules",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "Typescript class decorators for class-style vuex modules.",
   "main": "commonjs/index.js",
   "module": "lib/index.js",

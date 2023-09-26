@@ -11,9 +11,9 @@ export class VuexModule {
   }
 
   /** lifecycle: Will be called after instantiation */
-  created(): void { }
+  created(): void {}
 
   $watch<T>(fn: (arg: this) => T, callback: (newValue: T, oldValue: T) => void, options?: WatchOptions): Function {
-    return function () { };
+    return function() {};
   }
 }

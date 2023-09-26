@@ -157,8 +157,8 @@ export class VuexClassModuleFactory {
           ...context,
           stateSetter: this.moduleOptions.generateMutationSetters
             ? (field: string, val: any) => {
-              context.commit(this.getMutationSetterName(field), val);
-            }
+                context.commit(this.getMutationSetterName(field), val);
+              }
             : undefined
         };
         const thisObj = this.buildThisProxy(proxyDefinition);
@@ -189,8 +189,8 @@ export class VuexClassModuleFactory {
 
     const stateSetter = this.moduleOptions.generateMutationSetters
       ? (field: string, val: any) => {
-        store.commit(`${name}/${this.getMutationSetterName(field)}`, val);
-      }
+          store.commit(`${name}/${this.getMutationSetterName(field)}`, val);
+        }
       : undefined;
 
     const accessorModule = this.buildThisProxy({
@@ -239,8 +239,8 @@ export class VuexClassModuleFactory {
         proxyDefinition.stateSetter
           ? (key, val) => proxyDefinition.stateSetter!(key, val)
           : () => {
-            throw Error("[vuex-class-module]: Cannot modify state outside mutations.");
-          }
+              throw Error("[vuex-class-module]: Cannot modify state outside mutations.");
+            }
       );
     }
     if (!proxyDefinition.excludeModuleRefs) {

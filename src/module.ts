@@ -14,7 +14,7 @@ export function Module<T extends VuexModuleClass>(arg?: ModuleOptions | T): Clas
 
 function moduleDecoratorFactory(moduleOptions?: ModuleOptions) {
   return <TFunction extends Function>(constructor: TFunction): TFunction => {
-    const accessor: any = function (...args: any[]) {
+    const accessor: any = function(...args: any[]) {
       const instance = new constructor.prototype.constructor(...args) as IVuexModule;
       Object.setPrototypeOf(instance, accessor.prototype);
 
