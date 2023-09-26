@@ -14,14 +14,18 @@ export function Module<T extends VuexModuleClass>(arg?: ModuleOptions | T): Clas
 
 function moduleDecoratorFactory(moduleOptions?: ModuleOptions) {
   return <TFunction extends Function>(constructor: TFunction): TFunction => {
-    const accessor: any = function(...args: any[]) {
+    const accessor: any = function (...args: any[]) {
       const instance = new constructor.prototype.constructor(...args) as IVuexModule;
       Object.setPrototypeOf(instance, accessor.prototype);
 
       const factory = new VuexClassModuleFactory(constructor, instance, moduleOptions || {});
 
       factory.registerVuexModule();
-      return factory.buildAccessor();
+
+      const accessorModule = factory.buildAccessor();
+      accessorModule.created();
+
+      return accessorModule;
     };
     accessor.prototype = Object.create(constructor.prototype);
     accessor.prototype.constructor = accessor;
