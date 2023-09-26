@@ -54,10 +54,7 @@ export class VuexClassModuleFactory {
     getters: {},
     mutations: {},
     actions: {},
-    localFunctions: {
-      created() { },
-      unmounted() { }
-    }
+    localFunctions: {}
   };
 
   constructor(classModule: ModulePrototype, instance: IVuexModule, moduleOptions: ModuleOptions) {
