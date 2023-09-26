@@ -7,6 +7,16 @@ This is yet another package to introduce a simple type-safe class style syntax f
 ## New
 - Add `created` lifecycle to replace the constructor initialization logic. Constructor initialization will lost `this` bind if you operate within an asynchronous function.
 
+```ts
+class Foo extends VuexModule {
+  // ...
+
+  public created() {
+    // Do something here
+  }
+}
+```
+
 ## Installation
 
 `npm install vuex-class-modules`
