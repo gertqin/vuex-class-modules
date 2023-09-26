@@ -23,7 +23,7 @@ function moduleDecoratorFactory(moduleOptions?: ModuleOptions) {
       factory.registerVuexModule();
 
       const accessorModule = factory.buildAccessor();
-      accessorModule.created();
+      accessorModule.created?.();
 
       return accessorModule;
     };
