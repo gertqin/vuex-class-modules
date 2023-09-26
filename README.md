@@ -4,6 +4,9 @@ This is yet another package to introduce a simple type-safe class style syntax f
 
 [![npm](https://img.shields.io/npm/v/vuex-class-modules.svg)](https://www.npmjs.com/package/vuex-class-modules)
 
+## New
+- Add `created` lifecycle to replace the constructor initialization logic. Constructor initialization will lost `this` bind if you operate within an asynchronous function.
+
 ## Installation
 
 `npm install vuex-class-modules`

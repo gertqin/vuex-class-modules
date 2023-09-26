@@ -21,7 +21,11 @@ function moduleDecoratorFactory(moduleOptions?: ModuleOptions) {
       const factory = new VuexClassModuleFactory(constructor, instance, moduleOptions || {});
 
       factory.registerVuexModule();
-      return factory.buildAccessor();
+
+      const accessorModule = factory.buildAccessor();
+      accessorModule.created();
+
+      return accessorModule;
     };
     accessor.prototype = Object.create(constructor.prototype);
     accessor.prototype.constructor = accessor;
