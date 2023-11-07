@@ -32,11 +32,14 @@ interface ModuleDefinition {
 }
 interface StoreProxyDefinition {
   state?: Dictionary<any>;
+  getters?: Dictionary<any>;
   stateSetter?: (key: string, val: any) => void;
 
-  getters?: Dictionary<any>;
-  commit?: Commit;
-  dispatch?: Dispatch;
+  store?: {
+    getters?: Dictionary<any>;
+    commit?: Commit;
+    dispatch?: Dispatch;  
+  };
 
   useNamespaceKey?: boolean;
   excludeModuleRefs?: boolean;
@@ -153,11 +156,17 @@ export class VuexClassModuleFactory {
     // actions
     mapValues(vuexModule.actions!, this.definition.actions, action => {
       return (context: ActionContext<any, any>, payload: any) => {
+        const { commit, dispatch, state, getters } = context;
         const proxyDefinition: StoreProxyDefinition = {
-          ...context,
+          store: {
+            dispatch,
+            commit,
+          },
+          state,
+          getters,
           stateSetter: this.moduleOptions.generateMutationSetters
             ? (field: string, val: any) => {
-                context.commit(this.getMutationSetterName(field), val);
+                commit(this.getMutationSetterName(field), val);
               }
             : undefined
         };
@@ -194,7 +203,7 @@ export class VuexClassModuleFactory {
       : undefined;
 
     const accessorModule = this.buildThisProxy({
-      ...store,
+      store,
       state: store.state[name],
       stateSetter,
       useNamespaceKey: true,
@@ -251,17 +260,19 @@ export class VuexClassModuleFactory {
 
     if (proxyDefinition.getters) {
       mapValuesToProperty(obj, this.definition.getters, key => proxyDefinition.getters![`${namespaceKey}${key}`]);
+    } else if (proxyDefinition.store?.getters) {
+      mapValuesToProperty(obj, this.definition.getters, key => proxyDefinition.store!.getters![`${namespaceKey}${key}`]);
     }
 
-    if (proxyDefinition.commit) {
+    if (proxyDefinition.store?.commit) {
       mapValues(obj, this.definition.mutations, (mutation, key) => {
-        return (payload?: any) => proxyDefinition.commit!(`${namespaceKey}${key}`, payload);
+        return (payload?: any) => proxyDefinition.store!.commit!(`${namespaceKey}${key}`, payload);
       });
     }
 
-    if (proxyDefinition.dispatch) {
+    if (proxyDefinition.store?.dispatch) {
       mapValues(obj, this.definition.actions, (action, key) => {
-        return (payload?: any) => proxyDefinition.dispatch!(`${namespaceKey}${key}`, payload);
+        return (payload?: any) => proxyDefinition.store!.dispatch!(`${namespaceKey}${key}`, payload);
       });
     }
 
