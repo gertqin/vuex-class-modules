@@ -19,7 +19,7 @@ class Foo extends VuexModule {
 
 ## Installation
 
-`npm install vuex-class-modules`
+`npm install @skryu/vuex-class-modules`
 
 And make sure to have the `--experimentalDecorators` flag enabled.
 
